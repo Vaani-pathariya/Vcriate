@@ -9,6 +9,8 @@ const {
   deleteQuestion,
   getQuestion,
   updateQuestion,
+  changeDeadline,
+  inviteStudents,
 } = require("../controllers/quiz");
 const { authenticateToken } = require("../middlewares");
 router.use(authenticateToken);
@@ -20,4 +22,6 @@ router
   .delete(deleteQuestion)
   .get(getQuestion)
   .patch(updateQuestion);
+router.route("/change-deadline/:id").post(changeDeadline)
+router.route("/invite-students/:id").post(inviteStudents)
 module.exports = router;

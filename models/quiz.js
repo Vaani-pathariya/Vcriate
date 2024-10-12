@@ -35,7 +35,7 @@ const QuizSchema = new mongoose.Schema({
   ],
   totalMarks: {
     type: Number,
-    required: true,
+    default: 0
   },
   createdAt: {
     type: Date,
@@ -43,7 +43,8 @@ const QuizSchema = new mongoose.Schema({
   },
   deadline:{
     type: Date,
-    required: true
+    required: true ,
+    default: Date.now
   }
 });
 
