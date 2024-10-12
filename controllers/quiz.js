@@ -70,9 +70,56 @@ const changeDeadline = async (req,res)=>{ // Function to change deadline of the 
         return res.status(500).json({message:"Internal Server Error"})
     }
 }
-const inviteStudents = async(req,res)=>{
+const inviteStudents = async(req,res)=>{ // route to invite students 
     try{
-
+        const {email}= req.body;
+        const {userId}= req.user;
+        const quizId= req.params.id;
+        const user = await userModel.findById(userId);
+        if (!user){
+            return res.status(404).json({
+                message:"User not found"
+            })
+        }
+        const quiz = await quizModel.findById(quizId);
+        if (!quiz){
+            return res.status(404).json({
+                message:"Quiz not found"
+            })
+        }
+        if (!user.createdQuiz.includes(quizId)){
+            return res.status(403).json({
+                message:"User does not have permission"
+            })
+        }
+        const studentId = await userModel.findOne({email});
+        if(!studentId){
+            return res.status(500).json({
+                message:"Student not found"
+            })
+        }
+        if (!quiz.invitedStudents){
+            quiz.invitedStudents=[];
+        }
+        const alreadyInvited = quiz.invitedStudents.some(invitation=>invitation.student.toString()==studentId._id.toString())
+        if (alreadyInvited){
+            return res.status(400).json({
+                message:"Student already invited",
+            })
+        }
+        quiz.invitedStudents.unshift({
+            student: studentId._id,
+            status: "not_attempted"
+        });
+        if (!studentId.assignedQuiz){
+            studentId.assignedQuiz=[]
+        }
+        studentId.assignedQuiz.unshift(quiz._id);
+        await quiz.save();
+        await studentId.save();
+        res.status(200).json({
+            message :"Student Invited successfully"
+        })
     }
     catch(error){
         console.log(error);
