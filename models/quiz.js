@@ -41,6 +41,10 @@ const QuizSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  deadline:{
+    type: Date,
+    required: true
+  }
 });
 
 const Quiz = mongoose.model("Quiz", QuizSchema);
