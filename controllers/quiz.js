@@ -1,5 +1,6 @@
 const userModel = require("../models/user")
 const quizModel = require("../models/quiz")
+const questionModel = require("../models/question")
 const { ObjectId } = require("mongodb");
 const createQuiz = async(req,res)=>{ // Function to create a new Quiz
     try{
@@ -227,9 +228,39 @@ const deleteQuiz = async (req, res) => { // delete quiz route
     }
 };
 
-const createQuestion = async(req,res)=>{
+const createQuestion = async(req,res)=>{ // creating question
     try{
+        const {questionText,options,correctOption,marks}=req.body;
+        const quizId=req.params.quizid
+        const {userId}=req.user;
+        const user = await userModel.findById(userId);
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found"
+            });
+        }
+        const quiz = await quizModel.findById(quizId);
+        if (!quiz) {
+            return res.status(404).json({
+                message: "Quiz not found"
+            });
+        }
 
+        if (!user.createdQuiz.includes(quizId)) {
+            return res.status(403).json({
+                message: "User does not have access"
+            });
+        }
+        const newQuestion = new questionModel({
+            questionText,options,correctOption,marks
+        })
+        const savedQuestion = await newQuestion.save();
+        quiz.questions.push(savedQuestion._id);
+        await quiz.save();
+        res.status(200).json({
+            message:"Question created successfully",
+            question: savedQuestion
+        })
     }
     catch(error){
         console.log(error);

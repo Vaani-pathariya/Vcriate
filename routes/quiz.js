@@ -16,9 +16,9 @@ const { authenticateToken } = require("../middlewares");
 router.use(authenticateToken);
 router.route("/quiz").post(createQuiz).get(getAllQuiz);
 router.route("/quiz/:id").get(getQuizDetails).delete(deleteQuiz);
-router.route("/question").post(createQuestion);
+router.route("/question/:quizid").post(createQuestion);
 router
-  .route("/question/:id")
+  .route("/question/:quizid/:id")
   .delete(deleteQuestion)
   .get(getQuestion)
   .patch(updateQuestion);
