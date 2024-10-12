@@ -126,9 +126,22 @@ const inviteStudents = async(req,res)=>{ // route to invite students
         return res.status(500).json({message:"Internal Server Error"})
     }
 }
-const getAllQuiz= async(req,res)=>{
+const getAllQuiz= async(req,res)=>{ // Route to get all quizes of the user
     try{
-
+        const {userId}= req.user;
+        const user = await userModel.findById(userId);
+        if (!user){
+            return res.status(404).json({
+                message:"User Not found"
+            })
+        }
+        res.status(200).json({
+            message:"Quiz data fetched successfully",
+            data:{
+                assignedQuiz: user.assignedQuiz,
+                createdQuiz: user.createdQuiz
+            }
+        })
     }
     catch(error){
         console.log(error);
