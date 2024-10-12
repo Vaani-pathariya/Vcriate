@@ -179,15 +179,54 @@ const getQuizDetails =async(req,res)=>{ // Function to get quiz details
         return res.status(500).json({message:"Internal Server Error"})
     }
 }
-const deleteQuiz=async(req,res)=>{
-    try{
+const deleteQuiz = async (req, res) => { // delete quiz route 
+    try {
+        const { userId } = req.user;
+        const quizId = req.params.id;
 
+        const user = await userModel.findById(userId);
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found"
+            });
+        }
+        const quiz = await quizModel.findById(quizId);
+        if (!quiz) {
+            return res.status(404).json({
+                message: "Quiz not found"
+            });
+        }
+
+        if (!user.createdQuiz.includes(quizId)) {
+            return res.status(403).json({
+                message: "User does not have access"
+            });
+        }
+
+        user.createdQuiz = user.createdQuiz.filter(id => id.toString() !== quizId);
+        await user.save(); 
+
+
+        for (const student of quiz.invitedStudents) {
+            const st = await userModel.findById(student.student);
+            if (st) {
+                st.assignedQuiz = st.assignedQuiz.filter(id => id.toString() !== quizId);
+                await st.save(); 
+            }
+        }
+
+        await quizModel.findByIdAndDelete(quizId);
+
+
+        res.status(200).json({
+            message: "Quiz deleted successfully"
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Internal Server Error" });
     }
-    catch(error){
-        console.log(error);
-        return res.status(500).json({message:"Internal Server Error"})
-    }
-}
+};
+
 const createQuestion = async(req,res)=>{
     try{
 
