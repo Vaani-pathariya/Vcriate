@@ -1,7 +1,5 @@
 const mongoose = require("mongoose");
 const { ObjectId } = require("mongodb");
-const Question = require("./question");
-const User = require("./user");
 
 const QuizSchema = new mongoose.Schema({
   title: {
@@ -14,16 +12,17 @@ const QuizSchema = new mongoose.Schema({
   questions: [
     {
       type: ObjectId,
-      ref: "Question", // Use the string name of the model
+      ref: "Question", 
+
     },
   ],
   createdBy: {
     type: ObjectId,
-    ref: "User", // Use the string name of the model
+    ref: "User", 
   },
   invitedStudents: [
     {
-      student: { // Object structure with reference to User
+      student: { 
         type: ObjectId,
         ref: "User",
       },

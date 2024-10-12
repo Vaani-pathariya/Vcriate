@@ -1,6 +1,5 @@
 const mongoose= require("mongoose")
 const {ObjectId} = require("mongodb");
-const Quiz = require("./quiz");
 const UserSchema = new mongoose.Schema({
     email: {
         type: String,
@@ -21,7 +20,7 @@ const UserSchema = new mongoose.Schema({
     },
     quiz:[{
         type : ObjectId,
-        ref: Quiz
+        ref: "Quiz"
     }]
 })
 const User = mongoose.model("User",UserSchema);

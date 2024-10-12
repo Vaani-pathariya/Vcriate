@@ -6,6 +6,8 @@ const http = require("http")
 const app = express();
 const server = http.createServer(app);
 const userRouter=require("./routes/user")
+const quizRouter= require("./routes/quiz")
+const attemptRouter = require("./routes/attempt")
 const {connectMongoDb} = require("./connection")
 const port = 8000;
 app.use(cors());
@@ -14,6 +16,8 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json({limit:"10mb"}));
 // routers 
 app.use("/user",userRouter);
+app.use("/quiz",quizRouter);
+app.use("/attempt",attemptRouter);
 app.get("/",async(req,res)=>{
     res.json({message:"Working"});
 });

@@ -1,21 +1,19 @@
 const mongoose = require("mongoose");
 const {ObjectId} = require("mongodb");
-const Quiz = require("./quiz");
-const User = require("./user");
-const Question = require("./question");
+
 const AttemptSchema = new mongoose.Schema({
     quiz:{
         type : ObjectId,
-        ref: Quiz,
+        ref: "Quiz",
     },
     attemptBy:{
         type: ObjectId,
-        ref: User
+        ref: "User"
     },
     answers : [{
         question : {
             type : ObjectId,
-            ref: Question
+            ref: "Question"
         },
         selectedOption :{
             type: Number,
