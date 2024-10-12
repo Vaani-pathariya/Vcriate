@@ -148,9 +148,31 @@ const getAllQuiz= async(req,res)=>{ // Route to get all quizes of the user
         return res.status(500).json({message:"Internal Server Error"})
     }
 }
-const getQuizDetails =async(req,res)=>{
+const getQuizDetails =async(req,res)=>{ // Function to get quiz details 
     try{
-
+        const {userId}= req.user;
+        const quizId = req.params.id;
+        const user = await userModel.findById(userId);
+        if (!user){
+            return res.status(404).json({
+                message:"User not found"
+            })
+        }
+        const quiz= await quizModel.findById(quizId);
+        if (!quiz){
+            return res.status(404).json({
+                message:"Quiz not found"
+            })
+        }
+        if (!user.createdQuiz.includes(quizId)){
+            return res.status(403).json({
+                message:"User does not have access"
+            })
+        }
+        res.status(200).json({
+            message:"Quiz details fetched successfully",
+            data:quiz
+        })
     }
     catch(error){
         console.log(error);
