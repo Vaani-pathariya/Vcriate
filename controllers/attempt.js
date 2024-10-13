@@ -149,15 +149,52 @@ const getAllAttempted= async(req,res)=>{ // get all attempted
         })
     }
 }
-const getAttemptedQues= async (req,res)=>{
-    try{
+const getAttemptedQues = async (req, res) => { // Route to get an attempted question's response 
+    try {
+        const quizId = req.params.quizid;
+        const { userId } = req.user;
+        const attemptId = req.params.id;
+        const quesId = req.params.ques;
         
-    }catch(error){
-        return res.status(500).json({
-            message:"Internal Server Error"
-        })
+     
+        const user = await userModel.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+
+        const quiz = await quizModel.findById(quizId);
+        if (!quiz) {
+            return res.status(404).json({ message: "Quiz not found" });
+        }
+
+        
+        const question = await questionModel.findById(quesId);
+        if (!question) {
+            return res.status(404).json({ message: "Question not found" });
+        }
+
+
+        const attempt = await attemptModel.findById(attemptId);
+        if (!attempt) {
+            return res.status(404).json({ message: "Attempt not found" });
+        }
+
+
+        const attemptedQues = attempt.answers.find(ans => ans.question.toString() === quesId);
+        if (!attemptedQues) {
+            return res.status(404).json({ message: "Question not attempted" });
+        }
+
+        res.status(200).json({
+            message: "Question retrieved successfully",
+            attemptedQuestion: attemptedQues
+        });
+    } catch (error) {
+        return res.status(500).json({ message: "Internal Server Error" });
     }
-}
+};
+
 const editAttemptedQues = async(req,res)=>{
     try{
         
