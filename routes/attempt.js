@@ -11,12 +11,12 @@ const {
 const { authenticateToken } = require("../middlewares");
 const router = express.Router();
 router.use(authenticateToken);
-router.route("/attempt").post(createAttempt);
-router.route("/attempt/:id").post(addAttemptedQuestion).get(getAllAttempted);
+router.route("/attempt/:quizid").post(createAttempt);
+router.route("/attempt/:quizid/:id").post(addAttemptedQuestion).get(getAllAttempted);
 router
-  .route("/attempt/:id/:ques")
+  .route("/attempt/:quizid/:id/:ques")
   .get(getAttemptedQues)
   .patch(editAttemptedQues)
   .delete(deleteAttemptedQues);
-router.route("/score/:id").get(getScore);
+router.route("/score/:quizid/:id").get(getScore);
 module.exports = router;
