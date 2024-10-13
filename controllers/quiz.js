@@ -345,9 +345,44 @@ const getQuestion= async(req,res)=>{ // route to get question details
         return res.status(500).json({message:"Internal Server Error"})
     }
 }
-const updateQuestion = async(req,res)=>{
+const updateQuestion = async(req,res)=>{ // function to update question
     try{
-
+        const quizId=req.params.quizid
+        const {userId}=req.user;
+        const questionId= req.params.id
+        const {questionText,options,correctOption,marks}=req.body;
+        const user = await userModel.findById(userId);
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found"
+            });
+        }
+        const quiz = await quizModel.findById(quizId);
+        if (!quiz) {
+            return res.status(404).json({
+                message: "Quiz not found"
+            });
+        }
+        const question = await questionModel.findById(questionId);
+        if (!question){
+            return res.status(404).json({
+                message: "Question not found"
+            });
+        }
+        if (!user.createdQuiz.includes(quizId)) {
+            return res.status(403).json({
+                message: "User does not have access"
+            });
+        }
+        if (questionText) question.questionText=questionText
+        if (options) question.options = options 
+        if (correctOption) question.correctOption=correctOption
+        if (marks) question.marks=marks
+        const updatedQuestion = await question.save();
+        res.status(200).json({
+            message:"Question updated successfully",
+            data: updatedQuestion
+        })
     }
     catch(error){
         console.log(error);
