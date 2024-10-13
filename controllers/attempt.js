@@ -255,15 +255,55 @@ const editAttemptedQues = async (req, res) => { // Route to edit attempt respons
     }
 };
 
-const deleteAttemptedQues= async(req,res)=>{
-    try{
-        
-    }catch(error){
-        return res.status(500).json({
-            message:"Internal Server Error"
-        })
+const deleteAttemptedQues = async (req, res) => { // Route to delete attempt response 
+    try {
+        const quizId = req.params.quizid;
+        const { userId } = req.user;
+        const attemptId = req.params.id;
+        const quesId = req.params.ques;
+
+        const user = await userModel.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const quiz = await quizModel.findById(quizId);
+        if (!quiz) {
+            return res.status(404).json({ message: "Quiz not found" });
+        }
+
+        const question = await questionModel.findById(quesId);
+        if (!question) {
+            return res.status(404).json({ message: "Question not found" });
+        }
+
+        const attempt = await attemptModel.findById(attemptId);
+        if (!attempt) {
+            return res.status(404).json({ message: "Attempt not found" });
+        }
+
+        const answerIndex = attempt.answers.findIndex(ans => ans.question.toString() === quesId);
+        if (answerIndex === -1) {
+            return res.status(404).json({ message: "Question not attempted" });
+        }
+
+        const attemptedQues = attempt.answers[answerIndex];
+        if (attemptedQues.isCorrect) {
+            attempt.score -= question.marks;
+        }
+
+        attempt.answers.splice(answerIndex, 1);
+        await attempt.save();
+
+        res.status(200).json({
+            message: "Attempted question deleted successfully",
+            updatedAttempt: attempt
+        });
+    } catch (error) {
+        return res.status(500).json({ message: "Internal Server Error" });
     }
-}
+};
+
 const getScore = async(req,res)=>{ //Get total score 
     try{
         const quizId= req.params.quizid;
