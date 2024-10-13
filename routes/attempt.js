@@ -12,9 +12,10 @@ const { authenticateToken } = require("../middlewares");
 const router = express.Router();
 router.use(authenticateToken);
 router.route("/attempt/:quizid").post(createAttempt);
-router.route("/attempt/:quizid/:id").post(addAttemptedQuestion).get(getAllAttempted);
+router.route("/attempt/:quizid/:id").get(getAllAttempted);
 router
   .route("/attempt/:quizid/:id/:ques")
+  .post(addAttemptedQuestion)
   .get(getAttemptedQues)
   .patch(editAttemptedQues)
   .delete(deleteAttemptedQues);
