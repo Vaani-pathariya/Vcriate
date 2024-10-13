@@ -256,6 +256,7 @@ const createQuestion = async(req,res)=>{ // creating question
         })
         const savedQuestion = await newQuestion.save();
         quiz.questions.push(savedQuestion._id);
+        quiz.totalMarks= quiz.totalMarks+marks
         await quiz.save();
         res.status(200).json({
             message:"Question created successfully",
@@ -296,6 +297,7 @@ const deleteQuestion = async(req,res)=>{ // funtion to delete a question
             });
         }
         quiz.questions= quiz.questions.filter(id=>id.toString()!==questionId.toString())
+        quiz.totalMarks=quiz.totalMarks-question.marks
         await quiz.save();
         await questionModel.findByIdAndDelete(questionId);
         res.status(200).json({
@@ -377,7 +379,11 @@ const updateQuestion = async(req,res)=>{ // function to update question
         if (questionText) question.questionText=questionText
         if (options) question.options = options 
         if (correctOption) question.correctOption=correctOption
-        if (marks) question.marks=marks
+        if (marks) {
+            quiz.totalMarks=quiz.totalMarks-question.marks+marks
+            question.marks=marks
+            await quiz.save()
+        }
         const updatedQuestion = await question.save();
         res.status(200).json({
             message:"Question updated successfully",
