@@ -195,15 +195,66 @@ const getAttemptedQues = async (req, res) => { // Route to get an attempted ques
     }
 };
 
-const editAttemptedQues = async(req,res)=>{
-    try{
-        
-    }catch(error){
-        return res.status(500).json({
-            message:"Internal Server Error"
-        })
+const editAttemptedQues = async (req, res) => { // Route to edit attempt response 
+    try {
+        const quizId = req.params.quizid;
+        const { userId } = req.user;
+        const attemptId = req.params.id;
+        const quesId = req.params.ques;
+        const { selectedOption } = req.body;
+
+
+        const user = await userModel.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const quiz = await quizModel.findById(quizId);
+        if (!quiz) {
+            return res.status(404).json({ message: "Quiz not found" });
+        }
+
+        if (quiz.deadline < Date.now()) {
+            return res.status(403).json({ message: "The quiz deadline has passed, cannot edit answers." });
+        }
+
+        const question = await questionModel.findById(quesId);
+        if (!question) {
+            return res.status(404).json({ message: "Question not found" });
+        }
+
+        const attempt = await attemptModel.findById(attemptId);
+        if (!attempt) {
+            return res.status(404).json({ message: "Attempt not found" });
+        }
+
+        const attemptedQues = attempt.answers.find(ans => ans.question.toString() === quesId);
+        if (!attemptedQues) {
+            return res.status(404).json({ message: "Question not attempted" });
+        }
+
+     
+        const correct = selectedOption == question.correctOption;
+        attemptedQues.selectedOption = selectedOption;
+        attemptedQues.isCorrect = correct;
+
+   
+        if (correct && !attemptedQues.isCorrect) {
+            attempt.score += question.marks;
+        } else if (!correct && attemptedQues.isCorrect) {
+            attempt.score -= question.marks;
+        }
+
+        await attempt.save();
+        res.status(200).json({
+            message: "Attempted question updated successfully",
+            updatedAttempt: attempt
+        });
+    } catch (error) {
+        return res.status(500).json({ message: "Internal Server Error" });
     }
-}
+};
+
 const deleteAttemptedQues= async(req,res)=>{
     try{
         
