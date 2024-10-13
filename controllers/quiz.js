@@ -267,15 +267,46 @@ const createQuestion = async(req,res)=>{ // creating question
         return res.status(500).json({message:"Internal Server Error"})
     }
 }
-const deleteQuestion = async(req,res)=>{
+const deleteQuestion = async(req,res)=>{ // funtion to delete a question 
     try{
-
+        const quizId=req.params.quizid
+        const {userId}=req.user;
+        const questionId= req.params.id
+        const user = await userModel.findById(userId);
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found"
+            });
+        }
+        const quiz = await quizModel.findById(quizId);
+        if (!quiz) {
+            return res.status(404).json({
+                message: "Quiz not found"
+            });
+        }
+        const question = await questionModel.findById(questionId);
+        if (!question){
+            return res.status(404).json({
+                message: "Question not found"
+            });
+        }
+        if (!user.createdQuiz.includes(quizId)) {
+            return res.status(403).json({
+                message: "User does not have access"
+            });
+        }
+        quiz.questions= quiz.questions.filter(id=>id.toString()!==questionId.toString())
+        await quiz.save();
+        await questionModel.findByIdAndDelete(questionId);
+        res.status(200).json({
+            message:"Question deleted successfully"
+        })
     }
     catch(error){
         console.log(error);
         return res.status(500).json({message:"Internal Server Error"})
     }
-}
+} // this delete function needs to be tested 
 const getQuestion= async(req,res)=>{
     try{
 
